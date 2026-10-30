@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "apiVersion": 2,
+  "id": "kai.model-compare",
+  "name": "KAI Model Compare",
+  "version": "0.1.0",
+  "description": "Compare two installed local models on the same prompt, with response timings and saved comparisons on this device.",
+  "entry": "index.html",
+  "permissions": ["models.read", "inference.local", "storage.read", "storage.write"]
+}
