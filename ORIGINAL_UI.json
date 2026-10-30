@@ -1,0 +1,14 @@
+{
+  "repository": "therexdev/kaiapp",
+  "commit": "34d17faa0526213b8fc0ac7a65aa7f2c186c6547",
+  "screen": "compare",
+  "files": {
+    "compare.js": "b940f7e40e9fdf11051ce9164bc210682c5f28295f3f5e85429e389100ad6a2c",
+    "styles.css": "e03b95c82b7a7d3bf3f0425be892860f277bf540c79998e8f1617e69acec8a7b",
+    "product-experience.css": "e1a9f0061522e15d45fc256d7bfca819016f4b26b9af0d54b4c714c680b341c1"
+  },
+  "adaptations": [
+    "Scoped native transport replaces original localhost fetch.",
+    "Application shell is separate; original feature markup, styles and actions retained."
+  ]
+}

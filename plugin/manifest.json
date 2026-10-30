@@ -3,13 +3,15 @@
   "apiVersion": 2,
   "id": "kai.model-compare",
   "name": "KAI Model Compare",
-  "version": "0.1.1",
-  "description": "Compare two installed local models on the same prompt, with response timings and saved comparisons on this device.",
+  "version": "0.2.0",
+  "description": "The original blind A/B model comparison: prompt presets, local and network models, streaming responses, timings, reveal and saved voting scores.",
   "entry": "index.html",
   "permissions": [
     "models.read",
     "inference.local",
     "storage.read",
-    "storage.write"
+    "storage.write",
+    "compare.run",
+    "desktop.preferences"
   ]
 }
