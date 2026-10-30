@@ -2,6 +2,8 @@
 
 Compare two installed local models using the same prompt and output limit. Requires **KAI Core 0.2.0 or later** and at least one installed, ready text model.
 
+The window follows the original Compare models screen: model selectors, example prompts, one shared prompt, and two answer panels. New comparisons randomize the answer order and keep the model labels hidden until **Reveal models**. Pick Answer 1, Answer 2, or Tie to save your preference with that comparison. Dismiss notices with their X.
+
 ## What it does
 
 - Runs real local inference for model A and then model B, with no cloud fallback.
