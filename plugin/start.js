@@ -8,7 +8,10 @@
   const aliases=result.aliases||result.models||[];
   pickable=aliases.filter(m=>m.status==="ready").map(m=>({v:m.alias,label:"Local · "+m.label.split(" (")[0]}));
   const network=await fetch("/core/network").then(r=>r.json()).catch(()=>null);
-  if(network&&network.privacyMode!=="local-only"&&network.schedulerUrl&&network.walletUnlocked!==false)pickable.push({v:"koinos-network",label:"Koinos Network · Auto"});
+  if(network&&network.privacyMode!=="local-only") {
+   const available=await fetch("/core/network-models").then(r=>r.json());
+   for(const model of available.models||[])if(model.available===true&&typeof model.model==="string")pickable.push({v:"koinos-network:"+model.model,label:"Network · "+(model.label||model.model)});
+  }
   renderCompare();
   $("view-compare").hidden=false;
   $("cmp-vote").addEventListener("click",()=>{let tally;try{tally=JSON.parse(localStorage.getItem("kai-compare-tally")||"{}");}catch{return;}void window.kai.call("storage.set",{key:"legacy-compare-tally",value:tally}).catch(error=>{ $("cmp-status").hidden=false;$("cmp-status").textContent=error.message; });});
