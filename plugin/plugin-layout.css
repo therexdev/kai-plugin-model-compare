@@ -1,1 +1,4 @@
 html,body{height:100%;margin:0}#main{width:100%;height:100%;overflow:auto}.view{flex:1;min-height:100%;height:auto}
+
+.cmp-length{display:flex;align-items:center;gap:8px;font-size:.85em;color:var(--text-dim)}.cmp-controls .cmp-length select{flex:0 1 auto;min-width:150px}.cmp-controls select:disabled{opacity:.65;cursor:wait}
+@media(max-width:700px){.cmp-length{width:100%;justify-content:space-between}.cmp-controls .cmp-length select{flex:1;max-width:240px}}

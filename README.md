@@ -1,10 +1,12 @@
 # KAI Model Compare — Foundation plugin
 
-Version 0.3.0 requires KAI Foundation 0.7.0 (plugin API 3).
+Version 0.3.1 uses plugin API 3. Use KAI Core Beta 0.7.9 or later for the matching model queue and cancellation fixes.
 
 The plugin owns the blind A/B interface, comparison coordination, streaming transport, timings, prompt presets, reveal/vote controls, and saved voting scores. Core provides model discovery and inference through the same public API available to other plugin developers. No comparison controller or feature-specific route remains required in Core.
 
 Installed local models and eligible available network models appear as explicit choices. Network availability comes from the Core network model catalog, including its provider eligibility rules; having a model installed locally does not advertise it as a network model. Paid calls use Core's reviewed credit service. Local streams display as they arrive; a credit service returning a completed response is presented after completion.
+
+Comparison replies use the selected length limit (512–4,096 tokens, default 1,024). The interface distinguishes preparing/waiting from tokens actually arriving. Stop cancels only this comparison, including a request waiting behind another app; starting another comparison retries normally.
 
 Scores live in this plugin's Foundation storage. This version does not migrate or delete original-app data. Its service remains available while KAI runs in the foreground or tray and is revoked when disabled, updated or quit.
 
@@ -16,7 +18,9 @@ The manifest provides `kai.model-compare` with `request`, `poll`, and `cancel` m
 
 The native entry is `plugin/service/index.js`, exporting `create(api)`. No npm runtime dependencies are needed. Run `npm test`, package the `plugin` directory with the Foundation packer, and run `node scripts/verify-package.js` after signing. Keep publisher keys outside the repository.
 
-Tests cover comparison validation/history, the preserved renderer, actual plugin streaming through a simulated public inference API, cancellation and rejection of unrelated operations. Real model output and network credits require separate integration verification.
+Tests cover comparison validation/history, the renderer and native service together, first-token delays and gaps between tokens, cancellation before response headers and while streaming, retries, engine error frames, and rejection of unrelated operations.
+
+For the shared local runtime integration check, set `KAI_CORE_SOURCE` and `KAI_DOCUMENTS_SOURCE` to their source checkouts and run `node scripts/test-inference-integration.cjs`. It exercises the real Core Foundation API, HTTP gateway, runtime queue, both native plugin services and renderer bridges with disposable profiles and a synthetic HTTP model. It verifies FIFO operation, cancelling either queued plugin without interrupting the other, and cancellation during preparation without an orphan model launch. Real model output, hardware performance and network credits require separate device verification.
 
 ## Foundation package publication
 

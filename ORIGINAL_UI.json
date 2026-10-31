@@ -9,6 +9,13 @@
   },
   "adaptations": [
     "Scoped native transport replaces original localhost fetch.",
-    "Application shell is separate; original feature markup, styles and actions retained."
-  ]
+    "Application shell is separate; original feature markup, styles and actions retained.",
+    "Reliable native stream polling, cancellation and SSE error handling; reply length and preparation state are visible in the original comparison workspace."
+  ],
+  "adaptedFiles": {
+    "compare.js": {
+      "sha256": "7df7d45422d70ff017f960de89bef83ef1c1ab29901bb62281d41cdad0c3cdf7",
+      "changes": "Bound reply length, distinguish preparation from actual tokens, and surface failed or empty answers while preserving blind sequential comparisons."
+    }
+  }
 }

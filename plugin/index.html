@@ -4,9 +4,12 @@
           <h1>Compare models</h1>
           <p class="lede">One prompt, two models, blind. Answers stream one at a time (they share the machine), then you reveal which was which. Pick winners to learn which model earns its size.</p>
           <div class="cmp-controls">
-            <select id="cmp-a"></select>
+            <select id="cmp-a" aria-label="First model"></select>
             <span class="cmp-vs">vs</span>
-            <select id="cmp-b"></select>
+            <select id="cmp-b" aria-label="Second model"></select>
+            <label class="cmp-length" for="cmp-tokens">Reply length
+              <select id="cmp-tokens"><option value="512">Short · 512 tokens</option><option value="1024" selected>Standard · 1,024 tokens</option><option value="2048">Long · 2,048 tokens</option><option value="4096">Extended · 4,096 tokens</option></select>
+            </label>
           </div>
           <div id="cmp-presets" class="cmp-presets"></div>
           <form id="cmp-form">
@@ -14,7 +17,7 @@
             <button id="cmp-run" class="primary" type="submit">Run both</button>
             <button id="cmp-stop" type="button" hidden>Stop</button>
           </form>
-          <div id="cmp-status" class="hint" hidden></div>
+          <div id="cmp-status" class="hint" role="status" aria-live="polite" hidden></div>
           <div id="cmp-panes" hidden>
             <div class="cmp-pane"><div class="cmp-pane-head"><span class="cmp-pane-label" id="cmp-label-0">Answer 1</span></div><div class="cmp-pane-body" id="cmp-body-0"></div></div>
             <div class="cmp-pane"><div class="cmp-pane-head"><span class="cmp-pane-label" id="cmp-label-1">Answer 2</span></div><div class="cmp-pane-body" id="cmp-body-1"></div></div>

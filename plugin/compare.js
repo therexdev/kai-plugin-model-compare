@@ -68,13 +68,13 @@ for (const p of CMP_PRESETS) {
   $("cmp-presets").appendChild(b);
 }
 
-async function cmpStreamInto(model, prompt, paneIdx, signal) {
+async function cmpStreamInto(model, prompt, paneIdx, signal, maxTokens, onFirstToken) {
   const body = $(`cmp-body-${paneIdx}`);
   const resp = await fetch("/core/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json" },
     signal,
-    body: JSON.stringify({ model, stream: true, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model, stream: true, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }),
   });
   if (!resp.ok) {
     const j = await resp.json().catch(() => null);
@@ -84,6 +84,7 @@ async function cmpStreamInto(model, prompt, paneIdx, signal) {
   let lastPaint = 0;
   for await (const { content } of sseDeltas(resp.body)) {
     if (!content) continue;
+    if (!acc) onFirstToken?.();
     acc += content;
     const now = performance.now();
     if (now - lastPaint > 80) {
@@ -91,7 +92,8 @@ async function cmpStreamInto(model, prompt, paneIdx, signal) {
       lastPaint = now;
     }
   }
-  body.innerHTML = mdToHtml(acc) || KaiI18n.html("<p>(no answer)</p>");
+  if (!acc.trim()) throw Error("This model finished without an answer. Try another model or a shorter prompt.");
+  body.innerHTML = mdToHtml(acc);
   return acc;
 }
 
@@ -101,6 +103,12 @@ $("cmp-form").addEventListener("submit", async (e) => {
   if (!prompt || cmp.running) return;
   const a = $("cmp-a").value;
   const b = $("cmp-b").value;
+  const maxTokens = Number($("cmp-tokens").value);
+  if (!a || !b || ![512, 1024, 2048, 4096].includes(maxTokens)) {
+    $("cmp-status").hidden = false;
+    KaiI18n.setText($("cmp-status"), !a || !b ? "Choose two available models. Install local models from the Model library if this list is empty." : "Choose a valid reply length.");
+    return;
+  }
   if (a === b) {
     $("cmp-status").hidden = false;
     KaiI18n.setText($("cmp-status"), "Pick two different models to compare.");
@@ -112,6 +120,7 @@ $("cmp-form").addEventListener("submit", async (e) => {
   // Blind: coin-flip which model answers in which pane.
   cmp.models = Math.random() < 0.5 ? [a, b] : [b, a];
   $("cmp-run").disabled = true;
+  for (const id of ["cmp-a", "cmp-b", "cmp-tokens"]) $(id).disabled = true;
   $("cmp-stop").hidden = false;
   $("cmp-panes").hidden = false;
   $("cmp-verdict").hidden = true;
@@ -125,10 +134,11 @@ $("cmp-form").addEventListener("submit", async (e) => {
   const status = $("cmp-status");
   status.hidden = false;
   try {
-    KaiI18n.setText(status, "First model answering…");
-    await cmpStreamInto(cmp.models[0], prompt, 0, cmp.abort.signal);
-    KaiI18n.setText(status, "Switching models (they share the machine) — second answer coming…");
-    await cmpStreamInto(cmp.models[1], prompt, 1, cmp.abort.signal);
+    KaiI18n.setText(status, "Preparing or waiting for the first model…");
+    await cmpStreamInto(cmp.models[0], prompt, 0, cmp.abort.signal, maxTokens, () => KaiI18n.setText(status, "First model answering…"));
+    cmp.abort.signal.throwIfAborted();
+    KaiI18n.setText(status, "Preparing or waiting for the second model…");
+    await cmpStreamInto(cmp.models[1], prompt, 1, cmp.abort.signal, maxTokens, () => KaiI18n.setText(status, "Second model answering…"));
     status.hidden = true;
     $("cmp-verdict").hidden = false;
   } catch (err) {
@@ -137,6 +147,7 @@ $("cmp-form").addEventListener("submit", async (e) => {
     cmp.running = false;
     cmp.abort = null;
     $("cmp-run").disabled = false;
+    for (const id of ["cmp-a", "cmp-b", "cmp-tokens"]) $(id).disabled = false;
     $("cmp-stop").hidden = true;
   }
 });
