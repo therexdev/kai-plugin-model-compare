@@ -1,4 +1,10 @@
-# Compare Models 0.3.1
+# Compare Models 0.3.2
+
+Follows the language saved in Core Settings, including changes to open views. Supports English, Spanish, Brazilian Portuguese, French and German with offline catalogs. Core owns the first-run choice; plugin content and identifiers stay literal. Requires Core 0.7.17 or newer.
+
+## Previous release
+
+Compare Models 0.3.1
 
 Fixes comparisons stuck at the first message or showing only an occasional word. The renderer now continues checking streams through empty polls, handles split events and final tokens correctly, and displays upstream errors instead of leaving a generation running forever.
 

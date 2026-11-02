@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "id": "kai.model-compare",
   "name": "KAI Model Compare",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "The original blind A/B model comparison: prompt presets, local and network models, streaming responses, timings, reveal and saved voting scores.",
   "entry": "index.html",
   "permissions": [
