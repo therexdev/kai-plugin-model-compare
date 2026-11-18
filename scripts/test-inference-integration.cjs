@@ -29,7 +29,7 @@ async function main(){
   });});
   await new Promise(resolve=>engine.listen(0,"127.0.0.1",resolve));
   const models={aliases:()=>["model-a","model-b","model-slow"].map(alias=>({alias,label:alias,status:"ready"})),resolveAlias:alias=>({packageId:alias,contextSize:4096,runtime:"llamacpp"}),ensurePackage:async(alias,{signal})=>{if(alias==="model-slow"){slowSignal=signal;await abortable(slow.promise,signal);}return alias;}};
-  runtime=new RuntimeManager({models,makeRuntime:()=>{let running=false;return{endpoint:`http://127.0.0.1:${engine.address().port}`,status:()=>({running,kind:"llamacpp"}),start:async({modelPath})=>{starts.push(modelPath);running=true;},stop:()=>{running=false;}};}});
+  runtime=new RuntimeManager({models,makeRuntime:()=>{let running=false,allocatedContext=null;return{get contextSize(){return allocatedContext;},endpoint:`http://127.0.0.1:${engine.address().port}`,status:()=>({running,kind:"llamacpp"}),start:async({modelPath,contextSize})=>{assert.ok(Number.isSafeInteger(contextSize)&&contextSize>=4096);allocatedContext=contextSize;starts.push(modelPath);running=true;},stop:()=>{running=false;}};}});
   gateway=new Gateway({port:0,runtime,models,keys:{required:()=>false}});await gateway.listen();
   const core={runtime,models,gateway,settings:{get:(_key,fallback)=>fallback}},ctx={core,electron:{},isClosing:()=>false};
   const serviceFor=(root,slug)=>{const dataDir=path.join(temp,"plugins",slug);fs.mkdirSync(dataDir,{recursive:true});const controller=new AbortController();controllers.push(controller);const api=createFoundationApi(ctx,{manifest:JSON.parse(fs.readFileSync(path.join(root,"plugin/manifest.json"),"utf8")),root:path.join(root,"plugin"),dataDir,controller});api.services={provide:()=>()=>{}};const service=require(path.join(root,"plugin/service")).create(api);services.push(service);return service;};
@@ -40,7 +40,7 @@ async function main(){
   const cancelDocs=new AbortController(),cancelledDocument=documents("model-b","cancelled document",cancelDocs.signal),documentRejected=assert.rejects(cancelledDocument,{name:"AbortError"});
   await until(()=>runtime.status().inference.queued===1,"Documents was not queued behind Compare");cancelDocs.abort();await documentRejected;
   await until(()=>runtime.status().inference.queued===0,"Documents cancellation did not leave the Core queue");
-  assert.equal(held.get("compare hold").res.destroyed,false);assert.equal(runtime.activeAlias,"model-a");
+  assert.equal(held.get("compare hold").res.destroyed,false);assert.equal(runtime.activeAlias,"model-a");assert.equal(runtime.status().contextVerified,true);assert.equal(runtime.status().contextSize,4096);
   const writing=documents("model-b","document hold");await until(()=>runtime.status().inference.queued===1,"Document retry did not queue");
   // Several empty polls occur before the first token; both bridges must keep reading.
   await sleep(240);held.get("compare hold").complete();
